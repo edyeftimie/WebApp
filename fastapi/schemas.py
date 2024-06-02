@@ -28,3 +28,7 @@ class Team(TeamBase):
 
     class Config:
         orm_mode = True
+
+class UserBase(BaseModel):
+    username: str
+    password: str

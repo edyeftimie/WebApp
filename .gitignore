@@ -3,7 +3,6 @@ node_modules/
 playwright-report/
 playwright/
 
-
 # Python
 __pycache__/
 *.py[cod]
@@ -18,3 +17,6 @@ __pycache__/
 # Build directories
 build/
 dist/
+
+# Ignore mpp folder
+mpp/

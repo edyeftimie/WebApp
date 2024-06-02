@@ -63,3 +63,61 @@ def edit_player(db: Session, player: schemas.PlayerCreate, player_id: int):
     db.commit()
     db.refresh(db_player)
     return db_player
+
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def create_user(db: Session, user: schemas.UserBase):
+    hashed_password = pwd_context.hash(user.password)
+    db_user = models.User(username=user.username, hashed_password=hashed_password)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def get_user_by_username(db: Session, username: str):
+    return db.query(models.User).filter(models.User.username == username).first()
+
+SECRET_KEY = "cheie_secreta"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30 #min
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+def authenticate_user(db, username: str, password: str):
+    user = get_user_by_username(db, username=username)
+    if not user:
+        return False
+    if not verify_password(password, user.hashed_password):
+        return False
+    return user
+
+from datetime import datetime
+import jwt
+
+def create_access_token(data: dict, expires_delta: int):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now.timezone.utc() + expires_delta
+    else:
+        expire = datetime.now.timezone.utc() + datetime.timedelta(minutes=15)
+    # expire = datetime.datetime.utcnow() + datetime.timedelta(minutes=expires_delta)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jwt import PyJWTError
+
+def verify_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            return None
+        return payload
+    except PyJWTError:
+        return None

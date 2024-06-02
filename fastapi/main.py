@@ -1,11 +1,13 @@
 from fastapi import FastAPI, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from typing import List
-# uvicorn main:app --reload
-# python fastapi env
 import crud, models, schemas
 from database import SessionLocal, engine
+from passlib.context import CryptContext
+# uvicorn main:app --reload
+# python fastapi env
 # from .database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
@@ -162,3 +164,45 @@ import asyncio
 @app.on_event("startup")
 async def startup_event():
     asyncio.create_task(manager.broadcast("Server is up"))
+
+
+# jwt code here
+ouath2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+@app.post("/register")
+def register_user(user: schemas.UserBase, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_username(db, username=user.username)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Username already registered")
+    return crud.create_user(db=db, user=user)
+
+from datetime import timedelta
+
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+@app.post("/token")
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = crud.authenticate_user(db, username=form_data.username, password=form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) 
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = crud.create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+    
+@app.get("/veify_token/{token}")
+async def verify_user_token(token: str = Depends(ouath2_scheme)):
+    if not crud.verify_token(token = token):
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return {"message": "Token is valid"}
+    
+        
+
+
+
+
