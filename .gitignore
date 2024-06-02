@@ -1,0 +1,20 @@
+# React
+node_modules/
+playwright-report/
+playwright/
+
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.conda/
+.pytest_cache/
+.vscode/
+
+# Environment variables
+.env
+
+# Build directories
+build/
+dist/
