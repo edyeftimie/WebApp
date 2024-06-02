@@ -11,6 +11,8 @@ import {Chart} from '../src/components/chart'
 import {Team, TeamsList} from '../src/components/team'
 import { PlayerInfo } from './components/playerInfo'
 import { TeamInfo } from './components/teamInfo'
+import { Login } from './components/login'
+import { ProtectedPage } from './components/protected'
 import { BrowserRouter as Router, Route, Routes, BrowserRouter} from 'react-router-dom';
 // import {FullFeaturedCrudGrid } from '../src/Test';
 
@@ -26,6 +28,8 @@ const initializeApp = async () => {
         { PlayersList}
         { TeamsList }
         <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/protected" element={<ProtectedPage />} />
           <Route path="/" element={<Home />} />
           <Route path="/player" element={<Player />} />
           <Route path="/player/:id" element={<PlayerInfo />} />
