@@ -22,4 +22,4 @@ dist/
 mpp/
 
 # ignore database
-fastapi/sql_app.db
+.db
