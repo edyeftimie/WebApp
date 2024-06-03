@@ -46,16 +46,7 @@ const withAuth = (WrappedComponent) => {
     return AuthenticatedComponent;
 };
 
-// const AuthenticatedComponent = ({ component: Component, ...rest }) => {
-//     return <Component {...rest} />;
-// };
-// export const withAuth = (WrappedComponent) => (props) =>{
-//     return <AuthenticatedComponent component={WrappedComponent} {...props} />;
-// };
 export default withAuth;
-// export default ProtectedPage;
-// export { ProtectedPage };
-
 
 const AuthenticatedContext = createContext();
 

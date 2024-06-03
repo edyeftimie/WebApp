@@ -131,6 +131,7 @@ export function PlayersList(props) {
                 return <button onClick={() => deletePlayer(params.row.id)} type="button" className="btn btn-danger btn-sm" >Delete</button>
             }, 
         },
+        //{ field: 'createdAt', headerName: 'Created At', width: 150, sortable: true, filterable: false, editable: false},
         // { field: 'details', headerName: '', width: 70, sortable: false, filterable: false,
         //     renderCell: (params) => {
         //         return <button onClick={() => navigate(`/player/${params.row.id}`, { state: { player: params.row } })} type="button" className="btn btn-info btn-sm" >Details</button>
@@ -251,7 +252,7 @@ function PlayersForm(props) {
         } else {
             //create new player
             // console.log("create new player");
-            data.createdAt = new Date().toISOString().slice(0, 10);
+            // data.createdAt = new Date().toISOString().slice(0, 10);
             // fetch ('http://localhost:8000/players/?team_id=' + data.team_id, {
             fetch ('http://localhost:8000/players/' + data.team_id, {
                 method: 'POST',
