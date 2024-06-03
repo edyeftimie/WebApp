@@ -108,7 +108,7 @@ function Login() {
                     />
                 </div>
                 <div>
-                    <label>Password</label>
+                    <label>Password </label>
                     <input
                         type="password"
                         value={password}
@@ -117,8 +117,13 @@ function Login() {
                 </div>
                 {error && <div>{error}</div>}
                 <button type="submit" disabled={loading}>
-                    {loading ? 'Loading...' : 'Login'}
+                    {loading ? 'Loading...' : isRegistered ? 'Register' : 'Login'}
                 </button>
+                <div>
+                    <button type="button" onClick={() => navigate(isRegistered ? '/' : '/register')}>
+                        {isRegistered ? 'You already have an account? Login' : 'Create an account'}
+                    </button>
+                </div>
             </form>
         </div>
     );

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createContext, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const withAuth = (WrappedComponent) => {
@@ -54,3 +55,17 @@ const withAuth = (WrappedComponent) => {
 export default withAuth;
 // export default ProtectedPage;
 // export { ProtectedPage };
+
+
+const AuthenticatedContext = createContext();
+
+export const AuthenticatedProvider = ({ children }) => {
+    const [isAuthenticated, setIsAuthenticated] = useState([]);
+    return (
+        <AuthenticatedContext.Provider value={{ isAuthenticated, setIsAuthenticated }}>
+            {children}
+        </AuthenticatedContext.Provider>
+    );
+};
+
+export const useAuthenticatedContext = () => useContext(AuthenticatedContext);
