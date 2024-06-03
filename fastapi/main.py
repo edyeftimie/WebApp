@@ -12,6 +12,8 @@ from passlib.context import CryptContext
 
 models.Base.metadata.create_all(bind=engine)
 
+ouath2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 app = FastAPI()
 origins = [
     "http://localhost:3000",
@@ -69,8 +71,14 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
+def get_current_user(token: str = Depends(ouath2_scheme), db: Session = Depends(get_db)):
+    payload = crud.verify_token(token=token)
+    if payload is None:
+        raise HTTPException(status_code=401, detail="Unauthorised, invlid credentials!")
+    return payload
+
 @app.post("/players/{team_id}", response_model=schemas.Player)
-def create_player(team_id: int, player: schemas.PlayerCreate, db: Session = Depends(get_db)):
+def create_player(team_id: int, player: schemas.PlayerCreate, db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     db_player = crud.get_player_by_name(db, player_name=player.name)
     if db_player:
         raise HTTPException(status_code=400, detail="Player already exists")
@@ -84,11 +92,12 @@ def create_player(team_id: int, player: schemas.PlayerCreate, db: Session = Depe
         raise HTTPException(status_code=400, detail="Age must be a positive number")
     elif int(player.age) > 100:
         raise HTTPException(status_code=400, detail="Age must be less than 100")
-    return crud.create_player(db=db, player=player, team_id=team_id)
+    return crud.create_player(db=db, player=player, team_id=team_id, current_user=current_user)
+
 
 @app.get("/players/", response_model=List[schemas.Player])
-def read_players(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    players = crud.get_players(db, skip=skip, limit=limit)
+def read_players(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
+    players = crud.get_players(db, skip=skip, limit=limit, current_user= current_user)
     if not players:
         raise HTTPException(status_code=404, detail="No players found")
     return players
@@ -115,7 +124,7 @@ def delete_player(player_id: int, db: Session = Depends(get_db)):
     return crud.delete_player(db=db, player_id=player_id)
 
 @app.post("/teams/", response_model=schemas.Team)
-def create_team(team: schemas.TeamCreate, db: Session = Depends(get_db)):
+def create_team(team: schemas.TeamCreate, db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     db_team = crud.get_team_by_name(db, team_name=team.name)
     if db_team:
         raise HTTPException(status_code=400, detail="Team already exists")
@@ -130,11 +139,11 @@ def create_team(team: schemas.TeamCreate, db: Session = Depends(get_db)):
     #     raise HTTPException(status_code=400, detail="Number of trophies must be a number")
     elif int(team.number_of_trophies) < 0:
         raise HTTPException(status_code=400, detail="Number of trophies must be a positive number")
-    return crud.create_team(db=db, team=team)
+    return crud.create_team(db=db, team=team, current_user=current_user)
 
 @app.get("/teams/", response_model=List[schemas.Team])
-def read_teams(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    teams = crud.get_teams(db, skip=skip, limit=limit)
+def read_teams(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
+    teams = crud.get_teams(db, skip=skip, limit=limit, current_user= current_user)
     if not teams:
         raise HTTPException(status_code=404, detail="No teams found")
     return teams
@@ -168,7 +177,6 @@ async def startup_event():
 
 
 # jwt code here
-ouath2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 @app.post("/register")
 def register_user(user: schemas.UserBase, db: Session = Depends(get_db)):
@@ -209,3 +217,8 @@ def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     if not users:
         raise HTTPException(status_code=404, detail="No users found")
     return users
+
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the football API"}

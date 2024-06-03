@@ -28,6 +28,7 @@ export function PlayersList(props) {
     const navigate = useNavigate();
     const [ws, setWs] = useState(null);
 
+
     useEffect(() => {
         const socket = new WebSocket('ws://localhost:8000/ws');
 
@@ -55,17 +56,6 @@ export function PlayersList(props) {
         };
     }, []);
 
-    // function fetchInitialData() {
-    //     Promise.all([fetchPlayers(), fetchTeams()])
-    //         .then (([players, teams]) => {
-    //             setPlayersList(players);
-    //             setTeamsList(teams);
-    //         })
-    //         .catch((error) => {
-    //             console.error('Error fetching initial data:', error);
-    //         });
-    // }
-
     const fetchPlayersRef = React.useRef(fetchPlayers);
 
     useEffect(() => {
@@ -73,7 +63,13 @@ export function PlayersList(props) {
     });
 
     function fetchPlayers() {
-        fetch('http://127.0.0.1:8000/players/')
+        fetch('http://127.0.0.1:8000/players/', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            }
+        })
             .then(response => {
                 if (!response.ok) {
                     return response.json().then((error) => {
@@ -88,7 +84,7 @@ export function PlayersList(props) {
             })
             .catch(error => (
                 console.error('There has been a problem with your fetch operation:', error))
-                );
+            );
     }
 
     useEffect (() => {
@@ -120,6 +116,7 @@ export function PlayersList(props) {
         { field: 'name', headerName: 'Name', width: 150, sortable: true, filterable: true, editable: false },
         { field: 'age', headerName: 'Age', width: 150, sortable: true, filterable: true, editable: false },
         { field: 'team_id', headerName: 'Team_Id', width: 150, sortable: true, filterable: true, editable: false },
+        // { field: 'createdBy', headerName: 'Created By', width: 150, sortable: true, filterable: true, editable: false},
         // { field: 'createdAt', headerName: 'Created At', width: 150, sortable: true, filterable: false, editable: false},
         { field: 'edit', headerName: '', width: 70, sortable: false, filterable: false,
             renderCell: (params) => {
@@ -131,12 +128,6 @@ export function PlayersList(props) {
                 return <button onClick={() => deletePlayer(params.row.id)} type="button" className="btn btn-danger btn-sm" >Delete</button>
             }, 
         },
-        //{ field: 'createdAt', headerName: 'Created At', width: 150, sortable: true, filterable: false, editable: false},
-        // { field: 'details', headerName: '', width: 70, sortable: false, filterable: false,
-        //     renderCell: (params) => {
-        //         return <button onClick={() => navigate(`/player/${params.row.id}`, { state: { player: params.row } })} type="button" className="btn btn-info btn-sm" >Details</button>
-        //     }, 
-        // },
     ];
 
     function handleDoubleClick(params) {
@@ -176,12 +167,12 @@ export function PlayersList(props) {
             <button onClick={() => fetchPlayers() } type="btn btn-outline-primary me-2">Refresh</button>
             <button onClick={() => handleChartClick()} type="btn btn-outline-primary me-2">Show Chart</button>
             {/* <button onClick={() => youngestPlayer() } type="btn btn-outline-primary me-2">Show youngest player</button> */}
-            <div>
+            {/* <div>
                 {youngest && (<div>
                     <h3>Youngest player</h3>
                     <p>Name: {youngest.name}</p>
                 </div>)}
-            </div>
+            </div> */}
             <DataGrid
                 rows = {playersList.map((playerr) => {
                     return {
@@ -190,7 +181,8 @@ export function PlayersList(props) {
                         age: playerr.age,
                         // team_id: playerr.team_id,
                         team_id: teamsList.find((team) => team.id === playerr.team_id)?.name || 'Unknown',
-                        createdAt: playerr.createdAt,
+                        // createdAt: playerr.createdAt,
+                        createdBy: playerr.createdBy,
                     };
                 })}
                 columns={columns}
@@ -258,6 +250,7 @@ function PlayersForm(props) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
                 },
                 body: JSON.stringify(data),
             })

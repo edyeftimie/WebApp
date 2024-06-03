@@ -10,6 +10,7 @@ class PlayerCreate(PlayerBase):
 class Player(PlayerBase):
     id: int
     team_id: int
+    created_by: int
 
     class Config:
         orm_mode = True
@@ -25,6 +26,7 @@ class TeamCreate(TeamBase):
 class Team(TeamBase):
     id: int
     players: list[Player] = []
+    created_by: int
 
     class Config:
         orm_mode = True
@@ -32,3 +34,11 @@ class Team(TeamBase):
 class UserBase(BaseModel):
     username: str
     password: str
+
+class User(UserBase):
+    id: int
+    players: list[Player] = []
+    teams: list[Team] = []
+
+    class Config:
+        orm_mode = True

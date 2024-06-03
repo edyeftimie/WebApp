@@ -16,7 +16,7 @@ export function Network() {
 
     function checkConnection() {
         try {
-            axios.get('http://127.0.0.1:8000/players/') 
+            axios.get('http://127.0.0.1:8000/') 
                 .then((response) => {
                     if (response.status === 200) {
                         setIfConnection('online');

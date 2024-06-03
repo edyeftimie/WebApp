@@ -28,7 +28,13 @@ export function TeamsList(props) {
     const navigate = useNavigate();
 
     function fetchTeams() {
-        fetch('http://127.0.0.1:8000/teams/')
+        fetch('http://127.0.0.1:8000/teams/', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            }
+        })
             .then((response) => {
                 if (!response.ok) {
                     return response.json().then((error) => {
@@ -142,6 +148,7 @@ function TeamsForm(props) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    "Authorization": "Bearer " + localStorage.getItem("token"),
                 },
                 body: JSON.stringify(data),
             })

@@ -8,11 +8,17 @@ def get_team(db: Session, team_id: int):
 def get_team_by_name(db: Session, team_name: str):
     return db.query(models.Team).filter(models.Team.name == team_name).first()
 
-def get_teams(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Team).offset(skip).limit(limit).all()
+def get_teams(db: Session, skip: int = 0, limit: int = 100, current_user: schemas.UserBase = None):
+    if current_user is None:
+        return db.query(models.Team).offset(skip).limit(limit).all()
+    else:
+        username = current_user["sub"]
+        user_id = get_user_id_by_username(db, username)
+        return db.query(models.Team).filter(models.Team.created_by == user_id).offset(skip).limit(limit).all()
 
-def create_team(db: Session, team: schemas.TeamCreate):
-    db_team = models.Team(name=team.name, country=team.country, number_of_trophies=team.number_of_trophies)
+def create_team(db: Session, team: schemas.TeamCreate, current_user: schemas.UserBase):
+    user_id = get_user_id_by_username(db, current_user["sub"])
+    db_team = models.Team(name=team.name, country=team.country, number_of_trophies=team.number_of_trophies, created_by=user_id)
     db.add(db_team)
     db.commit()
     db.refresh(db_team)
@@ -39,11 +45,19 @@ def get_player(db: Session, player_id: int):
 def get_player_by_name(db: Session, player_name: str):
     return db.query(models.Player).filter(models.Player.name == player_name).first()
 
-def get_players(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Player).offset(skip).limit(limit).all()
+def get_players(db: Session, skip: int = 0, limit: int = 100, current_user: schemas.UserBase = None):
+    if current_user is None:
+        return db.query(models.Player).offset(skip).limit(limit).all()
+    else:
+        # print (f"current_user: {current_user}")
+        username = current_user["sub"]
+        # print (f"username: {username}")
+        user_id = get_user_id_by_username(db, username)
+        return db.query(models.Player).filter(models.Player.created_by == user_id).offset(skip).limit(limit).all()
 
-def create_player(db: Session, player: schemas.PlayerCreate, team_id: int):
-    db_player = models.Player(name=player.name, age=player.age, team_id=team_id)
+def create_player(db: Session, player: schemas.PlayerCreate, team_id: int, current_user: schemas.UserBase):
+    user_id = get_user_id_by_username(db, current_user["sub"])
+    db_player = models.Player(name=player.name, age=player.age, team_id=team_id, created_by=user_id)
     #db_player = models.Player(**player.dict(), team_id=team_id)
     db.add(db_player)
     db.commit()
@@ -129,3 +143,11 @@ def verify_token(token: str):
     
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()
+
+def get_user_id_by_username(db: Session, username: str):
+    user = db.query(models.User).filter(models.User.username == username).first()
+    return user.id
+
+def get_username_from_token(token: str):
+    payload = verify_token(token)
+    return payload.get("sub")

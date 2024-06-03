@@ -3,6 +3,16 @@ from sqlalchemy.orm import relationship
 
 from database import Base
 
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+
+    players = relationship("Player", back_populates="user")
+    teams = relationship("Team", back_populates="user")
+
 class Player(Base):
     __tablename__ = "players"
 
@@ -10,8 +20,10 @@ class Player(Base):
     name = Column(String, unique=True, index=True)
     age = Column(Integer)
     team_id = Column(Integer, ForeignKey("teams.id"))
+    created_by = Column(Integer, ForeignKey("users.id"))
 
     team = relationship("Team", back_populates="players")
+    user = relationship("User", back_populates="players")
 
 class Team(Base):
     __tablename__ = "teams"
@@ -20,15 +32,10 @@ class Team(Base):
     name = Column(String, unique=True, index=True)
     country = Column(String)
     number_of_trophies = Column(Integer)
+    created_by = Column(Integer, ForeignKey("users.id"))
 
     players = relationship("Player", back_populates="team")
-
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
+    user = relationship("User", back_populates="teams")
 
 from database import engine
 User.metadata.create_all(bind=engine)
