@@ -20,3 +20,6 @@ dist/
 
 # Ignore mpp folder
 mpp/
+
+# ignore database
+fastapi/sql_app.db
