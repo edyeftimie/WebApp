@@ -11,10 +11,19 @@ import {Chart} from '../src/components/chart'
 import {Team, TeamsList} from '../src/components/team'
 import { PlayerInfo } from './components/playerInfo'
 import { TeamInfo } from './components/teamInfo'
+import { Login } from './components/login'
+//import { ProtectedPage } from './components/protected'
+import withAuth from './components/protected'
 import { BrowserRouter as Router, Route, Routes, BrowserRouter} from 'react-router-dom';
 // import {FullFeaturedCrudGrid } from '../src/Test';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+const AuthenticatedHome = withAuth(Home);
+const AuthenticatedPlayer = withAuth(Player);
+const AuthenticatedTeam = withAuth(Team);
+const AuthenticatedChart = withAuth(Chart);
+const AuthenticatedPlayerInfo = withAuth(PlayerInfo);
+const AuthenticatedTeamInfo = withAuth(TeamInfo);
 
 const initializeApp = async () => {
   root.render(
@@ -23,15 +32,14 @@ const initializeApp = async () => {
         <CombinedProvider>
         <Network />
         <Navbar />
-        { PlayersList}
-        { TeamsList }
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/player" element={<Player />} />
-          <Route path="/player/:id" element={<PlayerInfo />} />
-          <Route path="/team" element={<Team />} />
-          <Route path="/team/:id" element={<TeamInfo />} />
-          <Route path="/chart" element={<Chart />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/home" element={<AuthenticatedHome/>} />
+          <Route path="/player" element={<AuthenticatedPlayer />} />
+          <Route path="/player/:id" element={<AuthenticatedPlayerInfo />} />
+          <Route path="/team" element={<AuthenticatedTeam />} />
+          <Route path="/team/:id" element={<AuthenticatedTeamInfo />} />
+          <Route path="/chart" element={<AuthenticatedChart />} />
         </Routes>
         <Footer />
         </CombinedProvider>
@@ -41,7 +49,3 @@ const initializeApp = async () => {
 };
 
 initializeApp();
-// npx json-server db.json --port 3004 
-// npx json-server dbt.json --port 3004 
-// npm start
-// npx playwright test
