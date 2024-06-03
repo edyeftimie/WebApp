@@ -22,4 +22,6 @@ dist/
 mpp/
 
 # ignore database
+*.db
 .db
+fastapi/*.db
