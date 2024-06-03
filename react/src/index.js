@@ -12,7 +12,6 @@ import {Team, TeamsList} from '../src/components/team'
 import { PlayerInfo } from './components/playerInfo'
 import { TeamInfo } from './components/teamInfo'
 import { Login } from './components/login'
-//import { ProtectedPage } from './components/protected'
 import withAuth from './components/protected'
 import { BrowserRouter as Router, Route, Routes, BrowserRouter} from 'react-router-dom';
 // import {FullFeaturedCrudGrid } from '../src/Test';
@@ -34,6 +33,7 @@ const initializeApp = async () => {
         <Navbar />
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/register" element={<Login />} />
           <Route path="/home" element={<AuthenticatedHome/>} />
           <Route path="/player" element={<AuthenticatedPlayer />} />
           <Route path="/player/:id" element={<AuthenticatedPlayerInfo />} />
