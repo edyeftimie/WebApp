@@ -53,7 +53,7 @@ function Login() {
                 setError(data.error);
             } else {
                 localStorage.setItem('token', data.access_token);
-                navigate('/protected');
+                navigate('/home');
             }
         } catch (error) {
             setLoading(false);
