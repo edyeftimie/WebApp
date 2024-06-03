@@ -67,6 +67,9 @@ def edit_player(db: Session, player: schemas.PlayerCreate, player_id: int):
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+SECRET_KEY = "cheie_secreta"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30 #min
 
 def create_user(db: Session, user: schemas.UserBase):
     hashed_password = pwd_context.hash(user.password)
@@ -74,14 +77,10 @@ def create_user(db: Session, user: schemas.UserBase):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    return db_user
+    return "completed"
 
 def get_user_by_username(db: Session, username: str):
     return db.query(models.User).filter(models.User.username == username).first()
-
-SECRET_KEY = "cheie_secreta"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30 #min
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -94,15 +93,15 @@ def authenticate_user(db, username: str, password: str):
         return False
     return user
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import jwt
 
-def create_access_token(data: dict, expires_delta: int):
+def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.now.timezone.utc() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now.timezone.utc() + datetime.timedelta(minutes=15)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=30)
     # expire = datetime.datetime.utcnow() + datetime.timedelta(minutes=expires_delta)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -115,9 +114,18 @@ from jwt import PyJWTError
 def verify_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            return None
+        print(f"decoded payload: {payload}")
+        # username: str = payload.get("sub")
+        # if username is None:
+        #     return None
         return payload
-    except PyJWTError:
+    except jwt.ExpiredSignatureError:
+        print("Token expired")
         return None
+    except jwt.InvalidTokenError:
+        print("Invalid token")
+        print(f"token: {token}")
+        return None
+    
+def get_users(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.User).offset(skip).limit(limit).all()

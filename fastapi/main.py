@@ -16,6 +16,7 @@ app = FastAPI()
 origins = [
     "http://localhost:3000",
     "http://localhost:3000/players",
+    "http://localhost:3000/login",
     "http://localhost:8000",
     "ws://localhost:8000/ws",
     "ws://localhost:8000/players",
@@ -195,14 +196,16 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     )
     return {"access_token": access_token, "token_type": "bearer"}
     
-@app.get("/veify_token/{token}")
-async def verify_user_token(token: str = Depends(ouath2_scheme)):
-    if not crud.verify_token(token = token):
-        raise HTTPException(status_code=401, detail="Invalid token")
-    return {"message": "Token is valid"}
-    
-        
+@app.get("/verify-token/{token}")
+async def verify_user_token(token: str):
+    payload = crud.verify_token(token=token)
+    if payload is None:
+        raise HTTPException(status_code=403, detail="Invalid token")
+    return {"message": "Token is valid", "payload": payload}
 
-
-
-
+@app.get("/users/")
+def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    users = crud.get_users(db, skip=skip, limit=limit)
+    if not users:
+        raise HTTPException(status_code=404, detail="No users found")
+    return users
