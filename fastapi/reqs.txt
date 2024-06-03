@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+sqlalchemy
+
+bcrypt
+cryptography
+python-jose
+python-multipart
+passlib
+
+jwt
+websocket
+websocket-client
