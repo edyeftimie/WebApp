@@ -36,34 +36,3 @@ class Team(Base):
 
     players = relationship("Player", back_populates="team")
     user = relationship("User", back_populates="teams")
-
-# slqlite migration to mysql
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from database import engine
-
-mysql_engine = create_engine('mysql+pymysql://root:admin@localhost:3306/sqldb', echo=True)
-
-SessionLocalMySQL = sessionmaker(autocommit=False, autoflush=False, bind=mysql_engine)
-
-SQLite_Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-sqlite_session = SQLite_Session()
-
-MySQL_Session = sessionmaker(autocommit=False, autoflush=False, bind=mysql_engine)
-mysql_session = MySQL_Session()
-
-
-Base.metadata.create_all(bind=mysql_engine)
-
-tables = [User, Player, Team]
-for table in tables:
-    records = sqlite_session.query(table).all()
-    for record in records:
-        mysql_session.merge(record)
-
-mysql_session.commit()
-
-sqlite_session.close()
-mysql_session.close()
-    
