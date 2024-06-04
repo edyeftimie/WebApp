@@ -25,3 +25,5 @@ mpp/
 *.db
 .db
 fastapi/*.db
+database.py
+fastapi/key.py
