@@ -79,7 +79,6 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: api
-          path: api.zip
       
       - name: Upload to S3
         run: |
