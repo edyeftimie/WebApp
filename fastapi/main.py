@@ -6,9 +6,7 @@ from typing import List
 import crud, models, schemas
 from database import SessionLocal, engine
 from passlib.context import CryptContext
-# uvicorn main:app --reload
-# python fastapi env
-# from .database import SessionLocal, engine
+from mangum import Mangum
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -223,3 +221,5 @@ def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the football API"}
+
+handler = Mangum(app=app)
