@@ -39,6 +39,7 @@ app.add_middleware(
 
 def get_db():
     db = SessionLocal()
+    # db = create_engine("sqlite:///./sql_app.db")
     try:
         yield db
     finally:
