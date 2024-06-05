@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List
 
 class PlayerBase(BaseModel):
     name: str
@@ -25,7 +26,7 @@ class TeamCreate(TeamBase):
 
 class Team(TeamBase):
     id: int
-    players: list[Player] = []
+    players: List[Player] = []
     created_by: int
 
     class Config:
@@ -37,8 +38,8 @@ class UserBase(BaseModel):
 
 class User(UserBase):
     id: int
-    players: list[Player] = []
-    teams: list[Team] = []
+    players: List[Player] = []
+    teams: List[Team] = []
 
     class Config:
         orm_mode = True
