@@ -15,6 +15,9 @@ Faker==13.3.4
 fastapi==0.75.1
 future==0.18.2
 greenlet==1.1.2
+numpy==1.23.1
+pandas==1.4.3
+pymysql==1.0.2
 h11==0.12.0
 httpcore==0.15.0
 httpx==0.23.3
