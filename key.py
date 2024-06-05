@@ -1,1 +1,1 @@
-DATABASE_URL = "mysql+pymysql://admin:Nt02edynt02edy!@deploydb.c12sgkkkagac.eu-north-1.rds.amazonaws.com:3306/sqldb"
+
