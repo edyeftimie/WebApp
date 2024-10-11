@@ -3,7 +3,7 @@ This web application allows users to efficiently manage a database of football p
 The application and its database were deployed on AWS, ensuring scalability and cloud accessibility.
 
 ## Features
-### Backend (Fastapi)
+### Backend (Fastapi - Python)
 - **CRUD Operations**: Full create, read, update, and delete functionality.
 - **Authentication & Tokens**: Secure user authentication with token-based mechanisms.
 - **Local Session Management**: Tracks user sessions locally.
@@ -14,7 +14,7 @@ The application and its database were deployed on AWS, ensuring scalability and 
 - **Data Validation**: Ensures input data is correct before processing.
 - **Error Handling**: Robust mechanisms to handle and report errors.
 - **Fake Data Autogeneration**: Automatically generates mock data for testing.
-### Frontend (React)
+### Frontend (React - JavaScript)
 - **Add/Edit Forms**: Manage player and team information.
 - **Table Display**: Displays teams and players in a table format.
 - **Protected Routes**: Secure route access based on authentication.
